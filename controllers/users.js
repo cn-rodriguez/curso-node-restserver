@@ -1,4 +1,4 @@
-import { response } from 'express';
+import { response, request } from 'express';
 
 const usersGet = (req, res) => {
     const { q, nombre = 'No name', apikey, page = 1, limit } = req.query;
@@ -24,7 +24,7 @@ const usersPost = (req, res) => {
 }
 
 const usersPut = (req, res) => {
-    const { id } = req.params.id;
+    const { id } = req.params;
     res.json({
         msg: 'put API controller',
         id
