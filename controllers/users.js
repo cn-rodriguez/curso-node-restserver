@@ -3,16 +3,26 @@ import { User } from '../models/user.js';
 import bcryptjs from 'bcryptjs';
 
 
-const usersGet = (req, res) => {
-    const { q, nombre = 'No name', apikey, page = 1, limit } = req.query;
+const usersGet =  async(req, res) => {
+    const { limit = 5, start = 0 } =  req.query;
+    const query = { status: true }
+
+    // const usuarios = await User.find( query )
+    //     .skip(start)
+    //     .limit(limit);
+
+    // const total = await User.countDocuments( query );
+
+    const [ total, usuarios ] = await Promise.all( [
+        User.countDocuments( query ),
+        User.find( query )
+            .skip( start )
+            .limit( limit )
+    ] );
 
     res.json({
-        msg: 'get API controller',
-        q,
-        nombre,
-        apikey,
-        page,
-        limit
+        total,
+        usuarios
     });
 }
 
@@ -37,11 +47,22 @@ const usersPost = async(req, res) => {
     });
 }
 
-const usersPut = (req, res) => {
+const usersPut = async(req, res) => {
     const { id } = req.params;
+    const { _id, password, google, email, ...resto } = req.body;
+
+    // To do validar contra la base de datos
+    if ( password ) {
+        //  Encriptar la password
+        const salt = bcryptjs.genSaltSync();
+        resto.password = bcryptjs.hashSync(password, salt);
+    }
+
+    const usuario = await User.findByIdAndUpdate( id, resto );
+
+
     res.json({
-        msg: 'put API controller',
-        id
+        usuario
     });
 }
 
@@ -51,9 +72,14 @@ const usersPatch = (req, res) => {
     });
 };
 
-const usersDelete = (req, res) => {
+const usersDelete = async(req, res) => {
+    const { id } = req.params;
+
+    // Borrando fisicamente desde la db 
+    const user = await User.findByIdAndUpdate( id, { status: false }, { new: true });
+
     res.json({
-        msg: 'delete API controller'
+        user
     });
 };
 

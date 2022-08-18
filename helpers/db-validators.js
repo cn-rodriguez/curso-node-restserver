@@ -16,7 +16,15 @@ const emailExiste = async(email = '') => {
   }
 }
 
+const existeUsuarioPorId = async( id ) => {
+  const existeUsuario = await User.findById(id);
+  if ( !existeUsuario ) {
+    throw new Error(`El id ${id} no esta registrado en la BD`);
+  }
+}
+
 export { 
   esRoleValido,
-  emailExiste
+  emailExiste,
+  existeUsuarioPorId,
 }
