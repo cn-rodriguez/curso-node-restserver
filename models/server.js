@@ -1,6 +1,7 @@
 import express from 'express';
 import cors from 'cors';
-import { router } from '../routes/users.js';
+import { routerUsers } from '../routes/users.js';
+import { routerAuth } from '../routes/auth.js';
 import { dbConnection } from '../database/config.js';
 
 class Server {
@@ -8,7 +9,9 @@ class Server {
     constructor() {
         this.app = express();
         this.port = process.env.PORT;
+
         this.usersPath = '/api/users';
+        this.authPath = '/api/auth';
 
         // Conectar db
         this.conectarDB();
@@ -35,7 +38,8 @@ class Server {
     }
 
     routes() {
-        this.app.use(this.usersPath, router );
+        this.app.use( this.authPath, routerAuth )
+        this.app.use( this.usersPath, routerUsers );
     }
 
     listen() {

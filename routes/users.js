@@ -4,7 +4,17 @@ import { check }  from "express-validator";
 // const { check, isEmail } = require("express-validator"); No funcionan en js 6+
 // const { body } = require("express-validator");
 
-import { validarCampos } from "../middlewares/validar-campos.js"
+// import { validarCampos } from "../middlewares/validar-campos.js"
+// import { validarJWT } from "../middlewares/validar-jwt.js";
+// import { isAdminRole, haveRole } from "../middlewares/validar-roles.js";
+
+import {
+  validarCampos,
+  validarJWT,
+  isAdminRole,
+  haveRole,
+} from '../middlewares/index.js'
+
 import { esRoleValido, emailExiste, existeUsuarioPorId } from "../helpers/db-validators.js";
 
 import {
@@ -15,11 +25,11 @@ import {
   usersDelete,
 } from "../controllers/users.js";
 
-export const router = Router();
+export const routerUsers = Router();
 
-router.get("/", usersGet);
+routerUsers.get("/", usersGet);
 
-router.post("/", [
+routerUsers.post("/", [
   check( 'name', 'El nombre es obligatorio').not().isEmpty(),
   check( 'email', 'El correo no es valido').isEmail(),
   check( 'password', 'El password debe ser de al menos 6 caracteres').isLength({ min: 6 }),
@@ -28,17 +38,20 @@ router.post("/", [
   validarCampos
 ] ,usersPost);
 
-router.put("/:id", [
+routerUsers.put("/:id", [
   check( 'id', 'No es un ID valido').isMongoId(),
   check( 'id' ).custom( existeUsuarioPorId ),
   check( 'role' ).custom( esRoleValido ),
   validarCampos
 ], usersPut);
 
-router.delete("/:id", [
+routerUsers.delete("/:id", [
+  validarJWT,
+  // isAdminRole,
+  haveRole('ADMIN_ROLE', 'VENTAS_ROLE'),
   check( 'id', 'No es un ID valido').isMongoId(),
   check( 'id' ).custom( existeUsuarioPorId ),
   validarCampos
 ],usersDelete);
 
-router.patch("/", usersPatch);
+routerUsers.patch("/", usersPatch);
